@@ -8,7 +8,7 @@ With it, you can run your loyalty card from the assistant you already use. Ask h
 
 1. A Walty account at https://www.getwalty.com. Free to set up.
 2. Your API key. In the dashboard open **Assistant** and create one. It starts with `wk_` and is shown once, so copy it straight away. The assistant connection is part of the push plan; on the free plan the server answers 403.
-3. An assistant that supports MCP servers and skills: the Claude app, Claude Code, Codex, or another agent.
+3. An assistant that supports MCP servers and skills: the Claude app, Claude Code, Codex, Grok Build, or another agent. The skill file is the same for all of them.
 
 ## Step 1: connect Walty to your assistant
 
@@ -37,6 +37,25 @@ url = "https://www.getwalty.com/mcp"
 http_headers = { "x-api-key" = "wk_YOUR_KEY" }
 ```
 
+**Grok Build** (xAI's coding agent)
+
+```
+export WALTY_KEY=wk_YOUR_KEY
+grok mcp add --transport http walty https://www.getwalty.com/mcp --header "Authorization: Bearer $WALTY_KEY"
+```
+
+or in `~/.grok/config.toml`:
+
+```toml
+[mcp_servers.walty]
+url = "https://www.getwalty.com/mcp"
+headers = { "x-api-key" = "${WALTY_KEY}" }
+```
+
+`grok inspect` lists the loaded servers; `grok mcp doctor` is the first thing to run if Walty is missing.
+
+**Grok app (grok.com, iOS, Android)**: custom connectors are added at grok.com/connectors → New Connector → Custom, with the server URL. Walty needs a key in a request header, and xAI's docs don't say whether the Custom connector can send one, so this path is untested. If it only offers a sign-in flow, wait for Walty's OAuth sign-in, which is on the way for ChatGPT and will cover Grok too.
+
 **Any other MCP client**: streamable HTTP to the URL above, with the key as `x-api-key` or as `Authorization: Bearer`.
 
 ## Step 2: install the skill
@@ -50,6 +69,14 @@ git clone https://github.com/adrianTroop/walty-mcp-skill ~/.claude/skills/walty
 ```
 
 For one project only, clone it into `.claude/skills/walty/` inside that project instead.
+
+**Grok Build**, for every project:
+
+```
+git clone https://github.com/adrianTroop/walty-mcp-skill ~/.grok/skills/walty
+```
+
+For one project only, clone it into `.grok/skills/walty/` at the repo root. Skills load when a session starts, so open a new one after installing.
 
 **Other agents**: copy this folder into the directory your skills loader reads, or point the loader at it. The folder name should be `walty`.
 
